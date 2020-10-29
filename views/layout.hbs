@@ -47,7 +47,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="/"><i class="glyphicon glyphicon-envelope"></i> Mailtrain</a>
+                <a class="navbar-brand" href="/">Foxit</a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -60,8 +60,6 @@
                             <li><a href="{{url}}">{{title}}</a></li>
                         {{/if}}
                     {{/each}}
-                    <li><a href="https://github.com/Mailtrain-org/mailtrain/wiki"><span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span> {{#translate}}Wiki{{/translate}}</a></li>
-                    <li><a href="https://mailtrain.wordpress.com/"><span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span> {{#translate}}Blog{{/translate}}</a></li>
                 </ul>
 
                 {{#if user }}
@@ -117,28 +115,6 @@
         </div>
     </nav>
 
-    <!-- Main jumbotron for a primary marketing message or call to action -->
-
-    {{#if indexPage}}
-        <div class="jumbotron">
-            <div class="container">
-                <div class="pull-right col-md-4">
-                    {{{shoutout}}}
-                </div>
-
-                <h1><img class="img-responsive" src="/mailtrain-header.png"></h1>
-                <p>{{#translate}}Self Hosted Newsletter App Built on Top of Nodemailer{{/translate}}</p>
-                <p>
-                    <a class="btn btn-info btn-md" href="https://github.com/Mailtrain-org/mailtrain" role="button"><span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span> {{#translate}}Source on GitHub{{/translate}}</a>
-
-                    <a class="btn btn-success btn-md" href="http://mailtrain.org/subscription/EysIv8sAx" role="button"><span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> {{#translate}}Subscribe to Our Newsletter{{/translate}}</a>
-                </p>
-                <div class="clearfix"></div>
-
-            </div>
-        </div>
-    {{/if}}
-
     <div class="container">
 
         {{flash_messages}} {{{body}}}
@@ -147,7 +123,7 @@
 
     <footer class="footer">
         <div class="container">
-            <p class="text-muted">&copy; 2016 Kreata OÜ <a href="https://mailtrain.org">Mailtrain.org</a>, <a href="mailto:info@mailtrain.org">info@mailtrain.org</a>. <a href="https://github.com/Mailtrain-org/mailtrain">{{#translate}}Source on GitHub{{/translate}}</a></p>
+            <p class="text-muted">© 2020 Foxit software, Inc. All rights reserved. <a href="https://github.com/Mailtrain-org/mailtrain">Source on GitHub</a></p>
         </div>
     </footer>
 
