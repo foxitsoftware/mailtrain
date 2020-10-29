@@ -6,6 +6,7 @@ let fields = require('../lib/models/fields');
 let blacklist = require('../lib/models/blacklist');
 let subscriptions = require('../lib/models/subscriptions');
 let confirmations = require('../lib/models/confirmations');
+let campaigns = require('../lib/models/campaigns');
 let tools = require('../lib/tools');
 let express = require('express');
 let log = require('npmlog');
@@ -17,8 +18,9 @@ const handleErrorResponse = (res, log, err, code = 500, message = false) => {
         log.error('API', err);
     res.status(code);
     return res.json({
+        code: code,
         error: message || err.message || err,
-        data: []
+        data: {}
     });
 }
 
@@ -122,6 +124,7 @@ router.post('/subscribe/:listId', (req, res) => {
 
                             res.status(200);
                             res.json({
+                                code: 200,
                                 data: {
                                     id: confirmCid
                                 }
@@ -135,6 +138,7 @@ router.post('/subscribe/:listId', (req, res) => {
                         }
                         res.status(200);
                         res.json({
+                            code: 200,
                             data: {
                                 id: response.cid
                             }
@@ -176,6 +180,7 @@ router.post('/unsubscribe/:listId', (req, res) => {
                 }
                 res.status(200);
                 res.json({
+                    code: 200,
                     data: {
                         id: subscription.id,
                         unsubscribed: true
@@ -217,6 +222,7 @@ router.post('/delete/:listId', (req, res) => {
                 }
                 res.status(200);
                 res.json({
+                    code: 200,
                     data: {
                         id: subscription.id,
                         deleted: true
@@ -241,6 +247,7 @@ router.get('/subscriptions/:listId', (req, res) => {
             }
             res.status(200);
             res.json({
+                code: 200,
                 data: {
                     total: total,
                     start: start,
@@ -259,18 +266,71 @@ router.get('/lists', (req, res) => {
         }
         res.status(200);
         res.json({
+            code: 200,
             data: lists
         });
     });
 });
 
-router.get('/list/:id', (req, res) => {
+router.post('/list/edit/:id?', (req, res) => {
+    let id = parseInt(req.params.id);
+    let input = {};
+    Object.keys(req.body).forEach(key => {
+        input[(key || '').toString().trim()] = (req.body[key] || '').toString().trim();
+    });
+
+    if (id) {
+        //update
+        lists.update(id, input, (err, affectedRows) => {
+            if (err) {
+                return handleErrorResponse(res, log, err);
+            }
+
+            res.status(200);
+            res.json({
+                code: 200,
+                data: {}
+            });
+        })
+    } else {
+        //create
+        lists.create(input, (err, id) => {
+            if (err) {
+                return handleErrorResponse(res, log, err);
+            }
+
+            res.status(200);
+            res.json({
+                code: 200,
+                data: {
+                    id: id
+                }
+            });
+        });
+    }
+});
+
+router.post('/list/delete/:id', (req, res) => {
+    lists.delete(req.params.id, (err, list) => {
+        if (err) {
+            return handleErrorResponse(res, log, err);
+        }
+        res.status(200);
+        res.json({
+            code: 200,
+            data: {}
+        });
+    });
+});
+
+router.get('/delete/:id', (req, res) => {
     lists.get(req.params.id, (err, list) => {
         if (err) {
             return handleErrorResponse(res, log, err);
         }
         res.status(200);
         res.json({
+            code: 200,
             data: list
         });
     });
@@ -283,6 +343,7 @@ router.get('/lists/:email', (req, res) => {
         }
         res.status(200);
         res.json({
+            code: 200,
             data: lists
         });
     });
@@ -317,6 +378,7 @@ router.post('/field/:listId', (req, res) => {
             }
             res.status(200);
             res.json({
+                code: 200,
                 data: {
                     id,
                     tag
@@ -331,16 +393,17 @@ router.post('/blacklist/add', (req, res) => {
     Object.keys(req.body).forEach(key => {
         input[(key || '').toString().trim().toUpperCase()] = (req.body[key] || '').toString().trim();
     });
-    if (!(input.EMAIL) || (input.EMAIL === ''))  {
+    if (!(input.EMAIL) || (input.EMAIL === '')) {
         return handleErrorResponse(res, log, err);
     }
-    blacklist.add(input.EMAIL, (err) =>{
+    blacklist.add(input.EMAIL, (err) => {
         if (err) {
             return handleErrorResponse(res, log, err);
         }
         res.status(200);
         res.json({
-            data: []
+            code: 200,
+            data: {}
         });
     });
 });
@@ -350,17 +413,18 @@ router.post('/blacklist/delete', (req, res) => {
     Object.keys(req.body).forEach(key => {
         input[(key || '').toString().trim().toUpperCase()] = (req.body[key] || '').toString().trim();
     });
-    if (!(input.EMAIL) || (input.EMAIL === ''))  {
+    if (!(input.EMAIL) || (input.EMAIL === '')) {
         return handleErrorResponse(res, log, false, 500, 'EMAIL argument are required');
     }
-    blacklist.delete(input.EMAIL, (err) =>{
-      if (err) {
-          return handleErrorResponse(res, log, err);
-      }
-      res.status(200);
-      res.json({
-          data: []
-      });
+    blacklist.delete(input.EMAIL, (err) => {
+        if (err) {
+            return handleErrorResponse(res, log, err);
+        }
+        res.status(200);
+        res.json({
+            code: 200,
+            data: {}
+        });
     });
 });
 
@@ -370,18 +434,19 @@ router.get('/blacklist/get', (req, res) => {
     let search = req.query.search || '';
 
     blacklist.get(start, limit, search, (err, data, total) => {
-      if (err) {
-          return handleErrorResponse(res, log, err);
-      }
-      res.status(200);
-      res.json({
-          data: {
-            total: total,
-            start: start,
-            limit: limit,
-            emails: data
-          }
-      });
+        if (err) {
+            return handleErrorResponse(res, log, err);
+        }
+        res.status(200);
+        res.json({
+            code: 200,
+            data: {
+                total: total,
+                start: start,
+                limit: limit,
+                emails: data
+            }
+        });
     });
 });
 
@@ -390,10 +455,10 @@ router.post('/changeemail/:listId', (req, res) => {
     Object.keys(req.body).forEach(key => {
         input[(key || '').toString().trim().toUpperCase()] = (req.body[key] || '').toString().trim();
     });
-    if (!(input.EMAILOLD) || (input.EMAILOLD === ''))  {
+    if (!(input.EMAILOLD) || (input.EMAILOLD === '')) {
         return handleErrorResponse(res, log, false, 500, 'EMAILOLD argument is required');
     }
-    if (!(input.EMAILNEW) || (input.EMAILNEW === ''))  {
+    if (!(input.EMAILNEW) || (input.EMAILNEW === '')) {
         return handleErrorResponse(res, log, false, 500, 'EMAILNEW argument is required');
     }
     lists.getByCid(req.params.listId, (err, list) => {
@@ -435,6 +500,7 @@ router.post('/changeemail/:listId', (req, res) => {
                         }
                         res.status(200);
                         res.json({
+                            code: 200,
                             data: {
                                 id: subscription.id,
                                 changedemail: true
@@ -445,6 +511,59 @@ router.post('/changeemail/:listId', (req, res) => {
             });
         });
     });
+});
+
+router.post('/campaigns', (req, res) => {
+    let start = parseInt(req.query.start || 0, 10);
+    let limit = parseInt(req.query.limit || 10000, 10);
+    // 1: Idling,2:Scheduled,3:Finished
+    let input = {};
+    Object.keys(req.body).forEach(key => {
+        input[(key || '').toString().trim().toUpperCase()] = (req.body[key] || '').toString().trim();
+    });
+    input.NAME = input.NAME ? input.NAME : '';
+    input.STATUS = input.STATUS ? parseInt(input.STATUS) : 0;
+    input.ORDERBYFIELD = input.ORDERBYFIELD ? input.ORDERBYFIELD : 'created';
+    input.ORDERBY = input.ORDERBY ? input.ORDERBY : 'desc';
+
+    let where = 'id>0'
+        + (input.STATUS ? ' AND status=' + input.STATUS : '')
+        + (input.NAME === '' ? '' : ' AND name like \'%' + input.NAME + '%\'');
+
+    // input.NAME;
+    campaigns.search(req, where, input.ORDERBYFIELD + ' ' + input.ORDERBY, start, limit, (err, data, total) => {
+        if (err) {
+            return handleErrorResponse(res, log, err);
+        }
+        res.status(200);
+        res.json({
+            code: 200,
+            data: {
+                list: data,
+                start: start,
+                limit: limit,
+                total: total
+            }
+        });
+    })
+});
+
+router.post('/campaign/delete/:id', (req, res) => {
+    let id = parseInt(req.params.id);
+    if (id <= 0) {
+        return handleErrorResponse(res, log, false, 500, 'id argument is required');
+    }
+
+    campaigns.delete(id, (err, affected) => {
+        if (err) {
+            return handleErrorResponse(res, log, err);
+        }
+        res.status(200);
+        res.json({
+            code: 200,
+            data: {}
+        });
+    })
 });
 
 module.exports = router;
