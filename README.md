@@ -44,9 +44,9 @@ Depending on how you have configured your system and Docker you may need to prep
  * Mailtrain requires at least **Node.js v7**. If you want to use an older version of Node.js then you should use version v1.24 of Mailtrain. You can either download it [here](https://github.com/Mailtrain-org/mailtrain/archive/v1.24.0.zip) or if using git then run `git checkout v1.24.0` before starting it
 
   1. Download Mailtrain files using git: `git clone git://github.com/Mailtrain-org/mailtrain.git` (or download [zipped repo](https://github.com/Mailtrain-org/mailtrain/archive/master.zip)) and open Mailtrain folder `cd mailtrain`
-  2. Run `npm install --production` in the Mailtrain folder to install required dependencies
-  3. Copy [config/default.toml](config/default.toml) as `config/production.toml` and update MySQL and any other settings in it
-  4. Run the server `NODE_ENV=production npm start`, Run the develop server server `NODE_ENV=development npm start-dev`
+  2. Run `npm install` in the Mailtrain folder to install required dependencies
+  3. Copy [config/default.toml](config/default.toml) as `config/development.toml` and update MySQL and any other settings in it
+  4. Run the server `NODE_ENV=development npm start`(must be install nodemon[npm install -g nodemon])
   5. Open [http://localhost:3000/](http://localhost:3000/)
   6. Authenticate as `admin`:`test`
   7. Navigate to [http://localhost:3000/settings](http://localhost:3000/settings) and update service configuration, especially replace the value in `Service Address (URL)` from `localhost` to the actual IP or domain if installed on a server, otherwise e.g. image upload will not work.
