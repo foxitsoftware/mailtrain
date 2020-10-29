@@ -46,7 +46,7 @@ Depending on how you have configured your system and Docker you may need to prep
   1. Download Mailtrain files using git: `git clone git://github.com/Mailtrain-org/mailtrain.git` (or download [zipped repo](https://github.com/Mailtrain-org/mailtrain/archive/master.zip)) and open Mailtrain folder `cd mailtrain`
   2. Run `npm install --production` in the Mailtrain folder to install required dependencies
   3. Copy [config/default.toml](config/default.toml) as `config/production.toml` and update MySQL and any other settings in it
-  4. Run the server `NODE_ENV=production npm start`
+  4. Run the server `NODE_ENV=production npm start`, Run the develop server server `NODE_ENV=development npm start-dev`
   5. Open [http://localhost:3000/](http://localhost:3000/)
   6. Authenticate as `admin`:`test`
   7. Navigate to [http://localhost:3000/settings](http://localhost:3000/settings) and update service configuration, especially replace the value in `Service Address (URL)` from `localhost` to the actual IP or domain if installed on a server, otherwise e.g. image upload will not work.
