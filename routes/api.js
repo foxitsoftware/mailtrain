@@ -259,6 +259,42 @@ router.get('/subscriptions/:listId', (req, res) => {
     });
 });
 
+router.post('/list/:id', (req, res) => {
+    let start = parseInt(req.query.start || 0, 10);
+    let limit = parseInt(req.query.limit || 10, 10);
+
+    let input = {};
+    Object.keys(req.body).forEach(key => {
+        input[(key || '').toString().trim()] = (req.body[key] || '').toString().trim();
+    });
+    input.id = input.id ? input.id : '';
+
+    if (!input.id) {
+        return handleErrorResponse(res, log, false, 403, 'Missing List ID');
+    }
+    input.search = input.search ? input.search : '';
+    let where = 'id>0'
+        + (input.search === '' ? '' : ' AND email like \'%' + input.search + '%\'')
+        + (input.search === '' ? '' : ' OR first_name like \'%' + input.search + '%\'')
+        + (input.search === '' ? '' : ' OR last_name like \'%' + input.search + '%\'');
+    lists.listById(req, input.id, where, 'created desc', start, limit, (err, data, total) => {
+        if (err) {
+            return handleErrorResponse(res, log, err);
+        }
+        res.status(200);
+        res.json({
+            code: 200,
+            data: {
+                list: data,
+                start: start,
+                limit: limit,
+                total: total
+            }
+        });
+    });
+
+});
+
 router.get('/lists', (req, res) => {
     lists.quicklist((err, lists) => {
         if (err) {
