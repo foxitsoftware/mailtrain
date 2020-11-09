@@ -46,7 +46,14 @@ router.post('/subscribe/:listId', (req, res) => {
     Object.keys(req.body).forEach(key => {
         input[(key || '').toString().trim().toUpperCase()] = (req.body[key] || '').toString().trim();
     });
-    lists.getByCid(req.params.listId, (err, list) => {
+    let getById = 'getByCid';
+    if (input.ID_TYPE === 'id') {
+        getById = 'getById'
+    }
+
+    const func = lists[getById];
+    func(req.params.listId, (err, list) => {
+        console.log(list);
         if (err) {
             return handleErrorResponse(res, log, false, 403, 'Invalid or expired access_token');
         }
@@ -308,28 +315,29 @@ router.get('/lists', (req, res) => {
     });
 });
 
-router.post('/list/edit/:id?', (req, res) => {
-    let id = parseInt(req.params.id);
+router.post('/listedit', (req, res) => {
     let input = {};
     Object.keys(req.body).forEach(key => {
         input[(key || '').toString().trim()] = (req.body[key] || '').toString().trim();
     });
 
-    if (id) {
+    if (input.id) {
         //update
         lists.update(id, input, (err, affectedRows) => {
             if (err) {
                 return handleErrorResponse(res, log, err);
             }
-
             res.status(200);
             res.json({
                 code: 200,
                 data: {}
             });
-        })
+        });
     } else {
         //create
+        if (!input.name) {
+            return handleErrorResponse(res, log, false, 400, 'Missing Mailling list name');
+        }
         lists.create(input, (err, id) => {
             if (err) {
                 return handleErrorResponse(res, log, err);
