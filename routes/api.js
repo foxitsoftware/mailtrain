@@ -162,7 +162,14 @@ router.post('/unsubscribe/:listId', (req, res) => {
     Object.keys(req.body).forEach(key => {
         input[(key || '').toString().trim().toUpperCase()] = (req.body[key] || '').toString().trim();
     });
-    lists.getByCid(req.params.listId, (err, list) => {
+
+    let getById = 'getByCid';
+    if (input.ID_TYPE === 'id') {
+        getById = 'getById'
+    }
+
+    const func = lists[getById];
+    func(req.params.listId, (err, list) => {
         if (err) {
             return handleErrorResponse(res, log, err);
         }
@@ -203,7 +210,13 @@ router.post('/delete/:listId', (req, res) => {
     Object.keys(req.body).forEach(key => {
         input[(key || '').toString().trim().toUpperCase()] = (req.body[key] || '').toString().trim();
     });
-    lists.getByCid(req.params.listId, (err, list) => {
+    let getById = 'getByCid';
+    if (input.ID_TYPE === 'id') {
+        getById = 'getById'
+    }
+
+    const func = lists[getById];
+    func(req.params.listId, (err, list) => {
         if (err) {
             return handleErrorResponse(res, log, err);
         }
@@ -314,6 +327,67 @@ router.get('/lists', (req, res) => {
         });
     });
 });
+
+router.post('/getlistsbyemail', (req, res) => {
+    let start = parseInt(req.query.start || 0, 10);
+    let limit = parseInt(req.query.limit || 10000, 10);
+    let input = {};
+    Object.keys(req.body).forEach(key => {
+        input[(key || '').toString().trim()] = (req.body[key] || '').toString().trim();
+    });
+    input.email = input.email ? input.email : '';
+    input.name = input.name ? input.name : '';
+
+    if (!input.email) {
+        return handleErrorResponse(res, log, false, 403, 'Missing Email');
+    }
+
+    let where = '';
+    if (input.name) {
+        where = `name like \'%${input.name}%\'`;
+    }
+
+    lists.getLists(req, where, start, limit, (err, data, total) => {
+        if (err) {
+            return handleErrorResponse(res, log, err);
+        }
+        res.status(200);
+        res.json({
+            data: {
+                list: data,
+                start: start,
+                limit: limit,
+                total: total
+            }
+        });
+    });
+});
+
+router.post('/emailexsitinlist', (req, res) => {
+    let input = {};
+    Object.keys(req.body).forEach(key => {
+        input[(key || '').toString().trim()] = (req.body[key] || '').toString().trim();
+    });
+    input.id = input.id ? input.id : '';
+    input.email = input.email ? input.email : '';
+
+    if (!input.id || !input.email) {
+        return handleErrorResponse(res, log, false, 403, 'Missing Id or Email');
+    }
+
+    subscriptions.emailExsitInList(input.id, input.email, (err, exsit) => {
+        if (err) {
+            return handleErrorResponse(res, log, err);
+        }
+        res.status(200);
+        res.json({
+            data: {
+                exsit: exsit
+            },
+        });
+    });
+});
+
 
 router.post('/listedit', (req, res) => {
     let input = {};
