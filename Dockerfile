@@ -10,4 +10,4 @@ RUN npm install --no-progress --production
 COPY . /app
 EXPOSE 3000
 ENTRYPOINT ["bash", "/app/docker-entrypoint.sh"]
-CMD ["node", "index.js"]
+CMD ["npm", "start:no-nodemon"]
