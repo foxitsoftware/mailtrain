@@ -315,6 +315,27 @@ router.post('/list/:id', (req, res) => {
 
 });
 
+router.post('/getlist', (req, res) => {
+    let input = {};
+    Object.keys(req.body).forEach(key => {
+        input[(key || '').toString().trim()] = (req.body[key] || '').toString().trim();
+    });
+    input.id = input.id ? input.id : '';
+    if (!input.id) {
+        return handleErrorResponse(res, log, false, 403, 'Missing List ID');
+    }
+    lists.getListBaseDetailById(input.id, (err, data) => {
+        if (err) {
+            return handleErrorResponse(res, log, err);
+        }
+        res.status(200);
+        res.json({
+            code: 200,
+            data: data
+        });
+    });
+});
+
 router.get('/lists', (req, res) => {
     lists.quicklist((err, lists) => {
         if (err) {
@@ -428,7 +449,7 @@ router.post('/listedit', (req, res) => {
     }
 });
 
-router.post('/list/delete/:id', (req, res) => {
+router.post('/listdelete/:id', (req, res) => {
     lists.delete(req.params.id, (err, list) => {
         if (err) {
             return handleErrorResponse(res, log, err);
