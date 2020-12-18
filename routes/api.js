@@ -367,7 +367,6 @@ router.post('/getlistsbyemail', (req, res) => {
     if (input.name) {
         where = `name like \'%${input.name}%\'`;
     }
-
     lists.getLists(req, where, start, limit, (err, data, total) => {
         if (err) {
             return handleErrorResponse(res, log, err);
@@ -415,10 +414,9 @@ router.post('/listedit', (req, res) => {
     Object.keys(req.body).forEach(key => {
         input[(key || '').toString().trim()] = (req.body[key] || '').toString().trim();
     });
-
     if (input.id) {
         //update
-        lists.update(id, input, (err, affectedRows) => {
+        lists.update(input.id, input, (err, affectedRows) => {
             if (err) {
                 return handleErrorResponse(res, log, err);
             }
